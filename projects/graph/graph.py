@@ -136,7 +136,7 @@ class Graph:
                 # Then add A PATH TO its neighbors to the back of the queue
                 for neighbor in self.vertices[v]: 
                     # COPY THE PATH
-                    path_2 = path[:]
+                    path_2 = list(path)
                     # APPEND THE NEIGHOR TO THE BACK
                     path_2.append(neighbor)
 
@@ -148,7 +148,19 @@ class Graph:
         starting_vertex to destination_vertex in
         depth-first order.
         """
-        pass  # TODO
+        s = Stack()
+        s.push([starting_vertex])
+        visited = set()
+        while s.size() > 0:
+            p = s.pop()
+            v = p[-1]
+            if v == destination_vertex:
+                return p
+            visited.add(v)
+            for nv in self.vertices[v]:
+                path_2 = list(p)
+                path_2.append(nv)
+                s.push(path_2)
 
     def dfs_recursive(self, starting_vertex, destination_vertex):
         """
