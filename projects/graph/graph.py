@@ -174,17 +174,22 @@ class Graph:
         """
         if visited is None:
             visited = set()
+            
         if path is None:
             path = []
+
         visited.add(starting_vertex)
         path = path + [starting_vertex]
+
         if starting_vertex == destination_vertex:
             return path
-        for v in self.vertices[starting_vertex]:
-            if v not in visited:
-                np = self.dfs_recursive(v,destination_vertex,visited,path)
-                if np is not None:
-                    return np
+
+        for vert in self.vertices[starting_vertex]:
+            if vert not in visited:
+                new_path = self.dfs_recursive(vert ,destination_vertex,visited,path)
+                if new_path is not None:
+
+                    return new_path
 
 if __name__ == '__main__':
     graph = Graph()  # Instantiate your graph
