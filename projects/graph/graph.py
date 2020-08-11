@@ -84,27 +84,29 @@ class Graph:
             print(value)
         
 
-    def dft_recursive(self, starting_vertex, visited = None):
+
+    def dft_recursive(self, starting_vertex_id, visited=None):
+
         """
-        Print each vertex in depth-first order
-        beginning from starting_vertex.
+         Print each vertex in depth-first order
+         beginning from starting_vertex.
 
         This should be done using recursion.
-        """
-         # base case
-        if visited == None:
-            # initialize set to store visited vertices
+         """
+
+        if visited is None:
             visited = set()
 
-        # store the first vertex checked to the visited set
-        visited.add(starting_vertex)
-        print(starting_vertex)
 
+        visited.add(starting_vertex_id)
 
-        edges = self.vertices[starting_vertex]
-        for edge in edges:
-            if edge not in visited:
-                self.dft_recursive(edge, visited)
+        print(starting_vertex_id)
+
+        
+        for neighbor in self.vertices[starting_vertex_id]:
+            if neighbor not in visited:
+
+                self.dft_recursive(neighbor, visited)
 
     def bfs(self, starting_vertex, destination_vertex):
         """
