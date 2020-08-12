@@ -1,5 +1,4 @@
-from util import Queue, Stack, Graph
-
+from utils import Stack, Queue, Graph
 
 def earliest_ancestor(ancestors, starting_node):
     graph = Graph()
@@ -8,25 +7,35 @@ def earliest_ancestor(ancestors, starting_node):
         graph.add_vertex(pair[0])
         graph.add_vertex(pair[1])
 
+    
+    for pair in ancestors:
         graph.add_edge(pair[1], pair[0])
     
     q = Queue()
 
     q.enqueue([starting_node])
-    max_path_len = 1
-    earliest_ancestor = -1
+    
+    visited = set()
+    result = []
 
     while q.size() > 0:
         path = q.dequeue()
-        v = path[-1]
+        last_vert = path[-1]
 
-        if (len(path) >= max_path_len and v < earliest_ancestor) or (len(path) > max_path_len):
-            earliest_ancestor = v
-            max_path_len = len(path)
-        for neighbor in graph.vertices[v]:
+        if last_vert not in visited:
+            visited.add(last_vert)
+
+
+        for neighbor in graph.get_neighbors(last_vert):
             path_copy = list(path)
             path_copy.append(neighbor)
             q.enqueue(path_copy)
+            result.append(path_copy[-1])
+        
+        if result == []:
+            return -1
+        
 
-    return earliest_ancestor
+
+    return result[-1]
 
