@@ -5,7 +5,7 @@ from world import World
 import random
 from ast import literal_eval
 
-from utils import Stack, Queue, Graph
+## from utils import Stack, Queue, Graph
 
 
 '''
@@ -22,8 +22,44 @@ more exits. Continue by looking for the closest vertex that has a missing direct
 (represented by ? in each room direction) 
 travel in that missing direction for as long as possible. 
 Switch directions and do the same thing
---
-Traverse the whole graph and store mapped maze in dict
+--------------------
+Traverse the whole graph and store mapped world in dict
+
+Helper function to get each room exit, and setting each
+room direction to ? before being visited, only change it
+after doing so
+
+Helper function to traverse map, changing the player current location to match the 
+room currently in
+- Check the directions available, if not visited yet, visit it and make corresponding changes
+(i.e remove from unvisited arr and addd it to visited)
+- make sure to get bi-directions set up and opposites (n:s, s:n and so on)
+- check if the new room entered is already saved in the world map, if its not, check all possible
+  exits and update the results
+
+Helper function that checks all rooms with '?' by going to the opposite paths
+of the rooms visited, 
+ - make corresponding changes (remove from opposite paths arr  and add it to the 
+    traversed paths arr)
+
+ - conditions
+ - while the world map is smaller than the total number of rooms (500), 
+    check the initial room
+
+- if the new room is not in the world map
+    get all the room's exits 
+
+- for all directions and rooms,
+    if the room has an unvisited direction (i.e ?)
+    add it to the list of unvisited directions
+
+- as long as there are unvisited paths, keep traversing the map
+
+- similarly, check all the opposite paths for missing directions
+
+- get all room exits of the current rooms by picking random directions
+  available and making the player travel there, repeat process until
+   all rooms and their opposite directions have been mapped out
 
 
 '''
@@ -32,11 +68,12 @@ Traverse the whole graph and store mapped maze in dict
 world = World()
 
 # You may uncomment the smaller graphs for development and testing purposes.
-# map_file = "maps/test_line.txt"
-# map_file = "maps/test_cross.txt"
-# map_file = "maps/test_loop.txt"
-# map_file = "maps/test_loop_fork.txt"
-map_file = "maps/main_maze.txt"
+# map_file = "maps/test_line.txt" -- PASSING: 2 moves / 3 rooms visited
+# map_file = "maps/test_cross.txt" -- PASSING: 14 moves / 9 rooms visited
+# map_file = "maps/test_loop.txt" -- PASSING: 16 moves / 12 rooms visited (its possible to get down to 14 moves)
+# map_file = "maps/test_loop_fork.txt" -- PASSING: 28 moves / 18 rooms visited (its possible to get fewer, around 24)
+map_file = "maps/main_maze.txt" 
+# -- PASSING: 1004 moves / 500 rooms visited
 
 # Loads the map into a dictionary
 room_graph=literal_eval(open(map_file, "r").read())
@@ -89,7 +126,7 @@ def traverse_map(room, directions):
     prev_room  = player.current_room.id 
 
     # get new direction from directions available
-    # and remove it since direction will come visited
+    # and remove it since direction will become visited
     new_direction = directions.pop(0)
 
     # move the player into new room/direction
@@ -130,6 +167,78 @@ def traverse_map(room, directions):
         # update the world map listing
         world_map[prev_room][new_direction] = new_room_id
 
+
+# go back to all the rooms that have '?' in their directions
+def check_missing_directions(room):
+    # check the list last items
+    # loop through paths in opposite_path arr
+    for direction in opposite_path[-1]:
+
+        # the player travels to one of the rooms with a '?'
+        player.travel(direction)
+
+        # add it to the traversal path
+        traversal_path.append(direction)
+        
+        #in the same way, now remove it from the oppsite_path arr
+        opposite_path.pop(-1)
+
+        # if the current room being checked has a '?' in any of its directions.
+        # return it
+        # check only the values of the world map dict
+        if '?' in world_map[player.current_room.id].values():
+            return
+
+
+
+## Main Traversal logic
+
+# while the length of the world map is smaller than the total number
+# of rooms in the world
+
+# while len(world_map) < 500:
+while len(world_map) < len(room_graph):
+    # start the player in the default current room
+    new_room = player.current_room
+
+    #check to see if that room is in the world map
+    if new_room.id not in world_map:
+        # if it isnt, get all the available exits from the room
+        get_room_exits(new_room)
+    
+    # keep an array storing all unvisited paths
+    unvisited_paths = []
+
+    # for all the directions and rooms in the new room visited:
+    for direction, room in world_map[new_room.id].items():
+
+        # if the room has '?', add it to the unvisited paths arr
+        if room == '?':
+            unvisited_paths.append(direction)
+
+    # traverse the map by checking all the unvisited_paths
+    # per room
+
+    # as long as there are unvisited paths
+    if len(unvisited_paths) > 0:
+        traverse_map(new_room, unvisited_paths)
+    else:
+        # (BFS) find closest rooms with '?' in direction to
+        # go through
+        if len(opposite_path) > 0:
+            check_missing_directions(new_room)
+
+        else:
+            # get all the exits of  the room
+            exits = new_room.get_exits()
+
+            # choose a random direction to go through
+            random_direction = random.choice(exits)
+
+            # traverse the player to the new random direction
+            player.travel(random_direction)
+
+    
 
 
 
