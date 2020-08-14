@@ -22,7 +22,7 @@ more exits. Continue by looking for the closest vertex that has a missing direct
 (represented by ? in each room direction) 
 travel in that missing direction for as long as possible. 
 Switch directions and do the same thing
---------------------
+------------------------
 Traverse the whole graph and store mapped world in dict
 
 Helper function to get each room exit, and setting each
